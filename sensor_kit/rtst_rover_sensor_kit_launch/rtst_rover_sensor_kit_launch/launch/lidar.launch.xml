@@ -1,4 +1,20 @@
+<!-- ======================================================================================
+     ▼▼▼ 완성본 (A 안: Velodyne 드라이버 유지, 라이다 2개) — 위의 원본과 비교한 뒤 원본(1~146줄)을 지우고
+         이 블록만 남긴다. 그때 이 설명 주석 블록과 "변경" 표시 주석도 같이 정리할 것.
+     원본 대비 변경 요약:
+       (1) 라이다 그룹 4개(top/left/right/rear) → 2개(top/front). right·rear 그룹은 통째로 삭제.
+       (2) sensor_frame / frame_id 를 description(sensor_kit.xacro)이 정한 링크 이름으로:
+           velodyne_top → rs_helios_top, velodyne_left → rs_bpearl_front.
+           드라이버는 sensor_frame 값을 점군의 header.frame_id 에 넣고, Autoware 는 그 이름으로 TF 를 찾는다.
+           그래서 xacro 의 <link name> 과 글자 하나까지 같아야 한다.
+       (3) 두 번째 그룹의 네임스페이스 left → front (토픽 경로 /sensing/lidar/front/... 가 됨).
+           ⚠ config/concatenate_and_time_sync_node.param.yaml 의 input_topics 도 이 두 경로로 맞춰야 한다
+           (현재 right/top/left 셋 → top/front 둘). 그 파일은 별도로 고친다.
+       (4) 바뀌지 않은 것: 인자 선언부, 컨테이너 생성 include, 전처리 include 의 나머지 인자,
+           max_range/sensor_ip/data_port/scan_phase/cloud_*_angle(실센서 때 정하는 값), 마지막 concatenation include.
+     ====================================================================================== -->
 <launch>
+  <!-- [변경 없음] 인자 선언 -->
   <arg name="launch_driver" default="true"/>
   <arg name="host_ip" default="192.168.1.10"/>
   <arg name="use_concat_filter" default="true"/>
@@ -10,20 +26,23 @@
   <group>
     <push-ros-namespace namespace="lidar"/>
 
+    <!-- ===== 라이다 1: 상단 메인 (원본의 top 그룹. 네임스페이스 top 유지) ===== -->
     <group>
       <push-ros-namespace namespace="top"/>
       <let name="target_container" value="/sensing/lidar/top/pointcloud_preprocessor/pointcloud_container"/>
 
+      <!-- [변경 없음] 이 라이다의 노드들을 담을 컴포넌트 컨테이너 -->
       <include file="$(find-pkg-share autoware_sensing_launch)/launch/pointcloud_container.launch.xml">
         <arg name="container_namespace" value="/sensing/lidar/top/pointcloud_preprocessor"/>
         <arg name="container_name" value="pointcloud_container"/>
         <arg name="use_multithread" value="true"/>
       </include>
 
+      <!-- 드라이버. [변경] sensor_frame: velodyne_top → rs_helios_top (= sensor_kit.xacro 의 VLS-128 매크로 name) -->
       <include file="$(find-pkg-share autoware_sensor_driver_launch)/launch/velodyne_VLS128.launch.xml">
         <arg name="target_container" value="$(var target_container)"/>
         <arg name="launch_driver" value="$(var launch_driver)"/>
-        <arg name="sensor_frame" value="velodyne_top"/>
+        <arg name="sensor_frame" value="rs_helios_top"/>
         <arg name="max_range" value="250.0"/>
         <arg name="sensor_ip" value="192.168.1.201"/>
         <arg name="host_ip" value="$(var host_ip)"/>
@@ -31,29 +50,35 @@
         <arg name="scan_phase" value="300.0"/>
       </include>
 
+      <!-- 전처리(crop_box → crop_box → distortion_corrector → ring_outlier_filter).
+           [변경] frame_id: velodyne_top → rs_helios_top (출력 점군을 되돌릴 센서 프레임, 위와 같은 이름) -->
       <include file="$(find-pkg-share autoware_sensing_launch)/launch/pointcloud_preprocessor_cpu.launch.xml">
         <arg name="target_container" value="$(var target_container)"/>
-        <arg name="frame_id" value="velodyne_top"/>
+        <arg name="frame_id" value="rs_helios_top"/>
         <arg name="use_intra_process" value="true"/>
         <arg name="crop_box_filter_self_param_path" value="$(var crop_box_filter_self_param_path)"/>
         <arg name="crop_box_filter_secondary_param_path" value="$(var crop_box_filter_mirror_param_path)"/>
       </include>
     </group>
 
+    <!-- ===== 라이다 2: 전방 (원본의 left 그룹을 재활용. [변경] 네임스페이스 left → front) ===== -->
     <group>
-      <push-ros-namespace namespace="left"/>
-      <let name="target_container" value="/sensing/lidar/left/pointcloud_preprocessor/pointcloud_container"/>
+      <push-ros-namespace namespace="front"/>
+      <let name="target_container" value="/sensing/lidar/front/pointcloud_preprocessor/pointcloud_container"/>
 
+      <!-- [변경] container_namespace 의 left → front. 나머지 동일 -->
       <include file="$(find-pkg-share autoware_sensing_launch)/launch/pointcloud_container.launch.xml">
-        <arg name="container_namespace" value="/sensing/lidar/left/pointcloud_preprocessor"/>
+        <arg name="container_namespace" value="/sensing/lidar/front/pointcloud_preprocessor"/>
         <arg name="container_name" value="pointcloud_container"/>
         <arg name="use_multithread" value="false"/>
       </include>
 
+      <!-- 드라이버. [변경] sensor_frame: velodyne_left → rs_bpearl_front (= sensor_kit.xacro 의 VLP-16 매크로 name).
+           max_range 5.0 / cloud 각도 300~60 은 원본(측면 라이다용) 값 — 실센서 때 다시 정한다 -->
       <include file="$(find-pkg-share autoware_sensor_driver_launch)/launch/velodyne_VLP16.launch.xml">
         <arg name="target_container" value="$(var target_container)"/>
         <arg name="launch_driver" value="$(var launch_driver)"/>
-        <arg name="sensor_frame" value="velodyne_left"/>
+        <arg name="sensor_frame" value="rs_bpearl_front"/>
         <arg name="max_range" value="5.0"/>
         <arg name="sensor_ip" value="192.168.1.202"/>
         <arg name="host_ip" value="$(var host_ip)"/>
@@ -63,79 +88,19 @@
         <arg name="cloud_max_angle" value="60"/>
       </include>
 
+      <!-- [변경] frame_id: velodyne_left → rs_bpearl_front -->
       <include file="$(find-pkg-share autoware_sensing_launch)/launch/pointcloud_preprocessor_cpu.launch.xml">
         <arg name="target_container" value="$(var target_container)"/>
-        <arg name="frame_id" value="velodyne_left"/>
+        <arg name="frame_id" value="rs_bpearl_front"/>
         <arg name="use_intra_process" value="true"/>
         <arg name="crop_box_filter_self_param_path" value="$(var crop_box_filter_self_param_path)"/>
         <arg name="crop_box_filter_secondary_param_path" value="$(var crop_box_filter_mirror_param_path)"/>
       </include>
     </group>
 
-    <group>
-      <push-ros-namespace namespace="right"/>
-      <let name="target_container" value="/sensing/lidar/right/pointcloud_preprocessor/pointcloud_container"/>
+    <!-- [삭제] 원본의 right 그룹(75~105줄), rear 그룹(107~137줄) — 우리 센서킷엔 없는 라이다 -->
 
-      <include file="$(find-pkg-share autoware_sensing_launch)/launch/pointcloud_container.launch.xml">
-        <arg name="container_namespace" value="/sensing/lidar/right/pointcloud_preprocessor"/>
-        <arg name="container_name" value="pointcloud_container"/>
-        <arg name="use_multithread" value="false"/>
-      </include>
-
-      <include file="$(find-pkg-share autoware_sensor_driver_launch)/launch/velodyne_VLP16.launch.xml">
-        <arg name="target_container" value="$(var target_container)"/>
-        <arg name="launch_driver" value="$(var launch_driver)"/>
-        <arg name="sensor_frame" value="velodyne_right"/>
-        <arg name="max_range" value="5.0"/>
-        <arg name="sensor_ip" value="192.168.1.203"/>
-        <arg name="host_ip" value="$(var host_ip)"/>
-        <arg name="data_port" value="2370"/>
-        <arg name="scan_phase" value="180.0"/>
-        <arg name="cloud_min_angle" value="300"/>
-        <arg name="cloud_max_angle" value="60"/>
-      </include>
-
-      <include file="$(find-pkg-share autoware_sensing_launch)/launch/pointcloud_preprocessor_cpu.launch.xml">
-        <arg name="target_container" value="$(var target_container)"/>
-        <arg name="frame_id" value="velodyne_right"/>
-        <arg name="use_intra_process" value="true"/>
-        <arg name="crop_box_filter_self_param_path" value="$(var crop_box_filter_self_param_path)"/>
-        <arg name="crop_box_filter_secondary_param_path" value="$(var crop_box_filter_mirror_param_path)"/>
-      </include>
-    </group>
-
-    <group>
-      <push-ros-namespace namespace="rear"/>
-      <let name="target_container" value="/sensing/lidar/rear/pointcloud_preprocessor/pointcloud_container"/>
-
-      <include file="$(find-pkg-share autoware_sensing_launch)/launch/pointcloud_container.launch.xml">
-        <arg name="container_namespace" value="/sensing/lidar/rear/pointcloud_preprocessor"/>
-        <arg name="container_name" value="pointcloud_container"/>
-        <arg name="use_multithread" value="false"/>
-      </include>
-
-      <include file="$(find-pkg-share autoware_sensor_driver_launch)/launch/velodyne_VLP16.launch.xml">
-        <arg name="target_container" value="$(var target_container)"/>
-        <arg name="launch_driver" value="$(var launch_driver)"/>
-        <arg name="sensor_frame" value="velodyne_rear"/>
-        <arg name="max_range" value="1.5"/>
-        <arg name="sensor_ip" value="192.168.1.204"/>
-        <arg name="host_ip" value="$(var host_ip)"/>
-        <arg name="data_port" value="2371"/>
-        <arg name="scan_phase" value="180.0"/>
-        <arg name="cloud_min_angle" value="300"/>
-        <arg name="cloud_max_angle" value="60"/>
-      </include>
-
-      <include file="$(find-pkg-share autoware_sensing_launch)/launch/pointcloud_preprocessor_cpu.launch.xml">
-        <arg name="target_container" value="$(var target_container)"/>
-        <arg name="frame_id" value="velodyne_rear"/>
-        <arg name="use_intra_process" value="true"/>
-        <arg name="crop_box_filter_self_param_path" value="$(var crop_box_filter_self_param_path)"/>
-        <arg name="crop_box_filter_secondary_param_path" value="$(var crop_box_filter_mirror_param_path)"/>
-      </include>
-    </group>
-
+    <!-- [변경 없음] 라이다 점군 합치기. 어떤 토픽을 합칠지는 config/concatenate_and_time_sync_node.param.yaml 의 input_topics 가 정한다 → 그 파일을 top/front 둘로 -->
     <include file="$(find-pkg-share autoware_sensing_launch)/launch/pointcloud_concatenation_cpu.launch.xml">
       <arg name="use_concat_filter" value="$(var use_concat_filter)"/>
       <arg name="use_intra_process" value="true"/>
