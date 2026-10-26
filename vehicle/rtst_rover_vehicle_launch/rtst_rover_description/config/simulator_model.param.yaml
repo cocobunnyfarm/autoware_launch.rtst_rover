@@ -18,3 +18,14 @@
     x_stddev: 0.0001 # x standard deviation for dummy covariance in map coordinate
     y_stddev: 0.0001 # y standard deviation for dummy covariance in map coordinate
     enable_road_slope_simulation: true # if true, slopes in the lanelet map are used to apply an extra acceleration to the ego vehicle
+
+# --- rtst_rover 로버 값 (아는 것만, 2026-10-26) — 위 값을 바꿀 때 참고. 출처: 로버 motion-limits.md, 등가 자전거 모델(L=0.177)
+#    vel_lim: 0.5            # [확정] 벤더 조이스틱 상한 0.5 m/s (게이트 실링). 실내 보수값 0.3
+#    vel_rate_lim: 0.5       # [미측정] 가속 한계 스펙 없음. 가정값, 실차에서 측정
+#    steer_lim: 0.62         # [계산] atan(ω_max·L / v) = atan(2.0·0.177/0.5). 더 느리면 더 커도 됨
+#    steer_rate_lim: 5.0     # [가정] 메카넘은 ω 를 즉시 바꿀 수 있어 등가 조향 속도 제한은 사실상 없음 → 샘플 값 유지
+#    acc_time_delay: 0.1     # [미측정] 보드 명령 지연. 실차에서 측정
+#    acc_time_constant: 0.1  # [미측정]
+#    steer_time_delay: 0.1   # [미측정] 샘플 0.24 는 실차 조향 액추에이터 기준이라 과함
+#    steer_time_constant: 0.1 # [미측정]
+#    vehicle_model_type: DELAY_STEER_ACC_GEARED 유지. 로버는 기어 없음(전후진 = 속도 부호) → 등가 모델에서도 문제 없음

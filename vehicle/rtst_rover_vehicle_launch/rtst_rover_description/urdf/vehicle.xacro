@@ -5,10 +5,12 @@
   <!-- vehicle body -->
   <link name="base_link">
     <visual>
-      <origin xyz="${vehicle_info['/**']['ros__parameters']['wheel_base']/2.0} 0 0" rpy="${pi/2.0} 0 ${pi}"/>
+      <origin xyz="${vehicle_info['/**']['ros__parameters']['wheel_base']/2.0} 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://rtst_rover_description/mesh/lexus.dae" scale="1 1 1"/>
+        <!-- <mesh filename="package://rtst_rover_description/mesh/lexus.dae" scale="1 1 1"/> -->
+        <mesh filename="package://rtst_rover_description/mesh/rover_base_link.stl" scale="1 1 1"/>
       </geometry>
+      <material name="rover_body"><color rgba="0.79 0.82 0.93 1"/></material>
     </visual>
   </link>
 </robot>
