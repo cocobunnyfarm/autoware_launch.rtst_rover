@@ -1,8 +1,14 @@
+# base_link(Autoware: 뒷축 중심, 지면 z=0) → sensor_kit_base_link
+# 로버엔 떼었다 붙이는 센서킷이 없다. 대신 sensor_kit_base_link 를 **로버 URDF 의 base_link 자리**(기하 중심, 지면 위 0.025)에 둔다.
+# 그러면 sensor_kit_calibration.yaml 의 센서 값에 벤더 URDF 좌표(로버 base_link 기준)를 변환 없이 그대로 쓸 수 있다.
+#   x 0.084 = 뒷축(STL 바퀴 접지 x −0.084) → 로버 기하 중심        [STL 실측]
+#   z 0.025 = 지면 → 로버 base_link (URDF base_footprint→base_link) [URDF]
+# base_link 위치를 로버 중심으로 옮기기로 결정되면(등가 모델, RR-003) 여기 x 만 바뀐다.
 base_link:
   sensor_kit_base_link:
-    x: 0.000000
+    x: 0.084
     y: 0.000000
-    z: 0.000000
+    z: 0.025
     roll: 0.000000
     pitch: 0.000000
     yaw: 0.000000

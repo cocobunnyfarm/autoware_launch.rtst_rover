@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="ms200_lidar" params="parent name *origin">
+    <joint name="${name}_joint" type="fixed">
+      <xacro:insert_block name="origin"/>
+      <parent link="${parent}"/>
+      <child link="${name}"/>
+    </joint>
+    <link name="${name}">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://rtst_rover_sensor_kit_description/sensor/lidar/mesh/rover_lidar_ms200.stl"/>
+        </geometry>
+        <material name="ms200_body"><color rgba="0.2 0.2 0.2 1"/></material>
+      </visual>
+    </link>
+  </xacro:macro>
+</robot>
+
