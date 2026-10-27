@@ -1,12 +1,12 @@
 /**:
   ros__parameters:
-    wheel_radius: 0.383 # The radius of the wheel, primarily used for dead reckoning.
-    wheel_width: 0.235 # The lateral width of a wheel tire, primarily used for dead reckoning.
-    wheel_base: 2.79 # between front wheel center and rear wheel center
-    wheel_tread: 1.64 # between left wheel center and right wheel center
-    front_overhang: 1.0 # between front wheel center and vehicle front
-    rear_overhang: 1.1 # between rear wheel center and vehicle rear
-    left_overhang: 0.128 # between left wheel center and vehicle left
-    right_overhang: 0.128 # between right wheel center and vehicle right
-    vehicle_height: 2.5
-    max_steer_angle: 0.70 # [rad]
+    wheel_radius: 0.040 # The radius of the wheel, primarily used for dead reckoning. (STL 바퀴 지름 0.080)
+    wheel_width: 0.02 # The lateral width of a wheel tire, primarily used for dead reckoning. (STL 근사)
+    wheel_base: 0.177 # between front wheel center and rear wheel center (STL +0.094/-0.084, 코드 0.17706)
+    wheel_tread: 0.172 # between left wheel center and right wheel center (STL ±0.087, 코드 0.17165)
+    front_overhang: 0.048 # between front wheel center and vehicle front (0.142 - 0.094)
+    rear_overhang: 0.059 # between rear wheel center and vehicle rear (0.143 - 0.084)
+    left_overhang: 0.019 # between left wheel center and vehicle left (0.106 - 0.086)
+    right_overhang: 0.019 # between right wheel center and vehicle right
+    vehicle_height: 0.231 # 팔 접음·라이다 제외 (미정: 라이다·팔 포함 시 상향)
+    max_steer_angle: 0.70 # [rad] 샘플 값 유지 (메카넘 등가 모델 미정, ST-1)
