@@ -1,29 +1,36 @@
 sensor_kit_base_link:
-  camera0/camera_link: # Camera
-    x: 0.0
-    y: 0.0
-    z: 0.0
+  # camera0/camera_link: # Camera
+  #   x: 0.0
+  #   y: 0.0
+  #   z: 0.0
+  #   roll: 0.0
+  #   pitch: 0.0
+  #   yaw: 0.0
+  # rs_helios_top_base_link: # Lidar
+  #   x: 0.0
+  #   y: 0.0
+  #   z: 0.0
+  #   roll: 0.0
+  #   pitch: 0.0
+  #   yaw: 0.0
+  # rs_bpearl_front_base_link: # Lidar
+  #   x: 0.0
+  #   y: 0.0
+  #   z: 0.0
+  #   roll: 0.0
+  #   pitch: 0.0
+  #   yaw: 0.0
+  lidar_frame:
+    x: 0.048156
+    y: 0.0000756
+    z: 0.106748
     roll: 0.0
     pitch: 0.0
     yaw: 0.0
-  rs_helios_top_base_link: # Lidar
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    roll: 0.0
-    pitch: 0.0
-    yaw: 0.0
-  rs_bpearl_front_base_link: # Lidar
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    roll: 0.0
-    pitch: 0.0
-    yaw: 0.0
-  gnss_link: # GNSS/INS
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    roll: 0.0
-    pitch: 0.0
-    yaw: 0.0
+  # gnss_link: # GNSS/INS
+  #   x: 0.0
+  #   y: 0.0
+  #   z: 0.0
+  #   roll: 0.0
+  #   pitch: 0.0
+  #   yaw: 0.0
