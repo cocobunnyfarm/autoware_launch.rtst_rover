@@ -13,7 +13,7 @@
 
 /**:
   ros__parameters:
-    max_vel: 4.17           # max velocity limit [m/s]  # {OVERRIDE: rtst_rover 관리 키. 플래닝 실험 중엔 upstream 값 4.17 유지, 실차 전 벤더 상한 0.5 m/s 로 낮춤. simulator_model vel_lim 이상 금지}
+    max_vel: 1.5            # max velocity limit [m/s]  # {OVERRIDE: was 4.17 (upstream 값, 10-31 실험용). 실내 연습 지도용 임시 1.5. 실차 전 로버 실측 최고속도(벤더 상한 0.5 m/s) 기준으로 다시 정함. simulator_model vel_lim 이상 금지}
 
     # constraints param for normal driving
     normal:
