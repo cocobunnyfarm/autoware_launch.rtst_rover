@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
+  <!-- arguments given by tier4_vehicle_launch/launch/vehicle.launch.xml -->
   <arg name="vehicle_id" default="$(env VEHICLE_ID default)"/>
+  <arg name="raw_vehicle_cmd_converter_param_path" default="" description="not used: the rover takes velocity commands (no pedal map)"/>
+  <arg name="initial_engage_state" default="false" description="not used: the rover starts in MANUAL mode"/>
+
+  <!-- rover base hardware and the node between Autoware and the rover (src/vehicle/external/rtst_rover_vehicle_interface) -->
+  <include file="$(find-pkg-share rtst_rover_vehicle_interface)/launch/rtst_rover_vehicle_interface.launch.xml"/>
 </launch>
